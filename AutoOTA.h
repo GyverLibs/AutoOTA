@@ -221,10 +221,14 @@ class AutoOTA {
 
             if (!_waitClient(client)) return false;
 
-            while (client.available() && client.connected()) {
-                delay(0);
-                if (client.readStringUntil('\n').length() == 1) {
-                    return true;
+            client.readStringUntil(' ');  // HTTP/1.1 CODE
+
+            if (client.parseInt() == 200) {
+                while (client.available() && client.connected()) {
+                    delay(0);
+                    if (client.readStringUntil('\n').length() == 1) {  // \r\n
+                        return true;
+                    }
                 }
             }
 
