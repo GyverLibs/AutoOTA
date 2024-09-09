@@ -58,6 +58,7 @@ class AutoOTA {
 
     // проверить обновления. Можно передать строки для записи информации
     bool checkUpdate(String* version = nullptr, String* notes = nullptr) {
+        if (_has_update) return true;
 #if defined(ESP8266)
         BearSSL::WiFiClientSecure client;
         client.setBufferSizes(1024, 512);
