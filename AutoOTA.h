@@ -122,7 +122,7 @@ class AutoOTA {
         client.stop();
 
         // req file
-        bin = F("GET ") + bin + F(" HTTP/1.1\r\n\r\n");
+        bin = ("GET ") + bin + F(" HTTP/1.1\r\n\r\n");
         if (!_request(client, bin)) return false;
 
         if (!_waitClient(client)) return _err = Error::NoFile, false;
