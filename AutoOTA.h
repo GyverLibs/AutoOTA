@@ -180,6 +180,7 @@ class AutoOTA {
     String _jsonReq() {
         String req(F("GET /"));
         req += _path;
+        if (!req.endsWith(F(".json"))) req += F("/main/project.json");
         req += F(" HTTP/1.1\r\nHost: ");
         req += _host;
         req += F("\r\n\r\n");

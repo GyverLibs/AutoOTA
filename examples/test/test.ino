@@ -10,7 +10,7 @@
 #define WIFI_SSID ""
 #define WIFI_PASS ""
 
-AutoOTA ota("1.0", "GyverLibs/GyverHub-example/main/project.json");
+AutoOTA ota("1.0", "GyverLibs/GyverHub-example");
 
 void setup() {
     Serial.begin(115200);
@@ -18,6 +18,7 @@ void setup() {
     Serial.print("Version ");
     Serial.println(ota.version());
 
+    WiFi.mode(WIFI_STA);
     WiFi.begin(WIFI_SSID, WIFI_PASS);
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
@@ -33,7 +34,7 @@ void setup() {
         ota.update();
     }
 
-    // AutoOTA ota("1.0", "GyverLibs/GyverHub-example/main/project.json");
+    // AutoOTA ota("1.0", "GyverLibs/GyverHub-example");
     // if (ota.checkUpdate()) {
     //     ota.update();
     // }

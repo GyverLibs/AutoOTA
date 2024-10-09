@@ -58,6 +58,8 @@ Error getError();
 ### Примеры
 Локальный объект, обновление сразу
 ```cpp
+// AutoOTA ota("1.0", "GyverLibs/GyverHub-example"); // если файл лежит в корне репозитория ветки main
+
 AutoOTA ota("1.0", "GyverLibs/GyverHub-example/main/project.json");
 if (ota.checkUpdate()) {
     ota.updateNow();
@@ -66,6 +68,8 @@ if (ota.checkUpdate()) {
 
 Обновление из loop
 ```cpp
+// AutoOTA ota("1.0", "GyverLibs/GyverHub-example"); // если файл лежит в корне репозитория ветки main
+
 AutoOTA ota("1.0", "GyverLibs/GyverHub-example/main/project.json");
 
 void setup() {
