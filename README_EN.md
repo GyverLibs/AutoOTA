@@ -1,185 +1,139 @@
-This is an automatic translation, may be incorrect in some places. See sources and examples!
+This is an automatic translation and may be incorrect in some places. See the source README and examples for authoritative information.
 
-# Autoota
-Library for automatic verification of OTA updates of the project with GITHUB and other sources
+[![latest](https://img.shields.io/github/v/release/GyverLibs/AutoOTA.svg?color=brightgreen)](https://github.com/GyverLibs/AutoOTA/releases/latest/download/AutoOTA.zip)
+[![PIO](https://badges.registry.platformio.org/packages/gyverlibs/library/AutoOTA.svg)](https://registry.platformio.org/libraries/gyverlibs/AutoOTA)
+[![Foo](https://img.shields.io/badge/Website-AlexGyver.ru-blue.svg?style=flat-square)](https://alexgyver.ru/)
+[![Foo](https://img.shields.io/badge/%E2%82%BD%24%E2%82%AC%20%D0%9F%D0%BE%D0%B4%D0%B4%D0%B5%D1%80%D0%B6%D0%B0%D1%82%D1%8C-%D0%B0%D0%B2%D1%82%D0%BE%D1%80%D0%B0-orange.svg?style=flat-square)](https://alexgyver.ru/support_alex/)
+[![Foo](https://img.shields.io/badge/README-ENGLISH-blueviolet.svg?style=flat-square)](https://github-com.translate.goog/GyverLibs/AutoOTA?_x_tr_sl=ru&_x_tr_tl=en)  
 
-## compatibility
+[![Foo](https://img.shields.io/badge/ПОДПИСАТЬСЯ-НА%20ОБНОВЛЕНИЯ-brightgreen.svg?style=social&logo=telegram&color=blue)](https://t.me/GyverLibs)
+
+# AutoOTA
+A library to automatically check OTA for project updates from GitHub and other sources
+
+### Compatibility
 ESP8266/ESP32
 
-## Content
-- [use] (#usage)
-- [versions] (#varsions)
-- [installation] (# Install)
-- [bugs and feedback] (#fedback)
+## Contents
+- [Use of use](#usage)
+- [Versions](#versions)
+- [Installation](#install)
+- [Bugs and feedback](#feedback)
 
-<a id="usage"> </a>
+<a id="usage"></a>
 
-## Usage
-- indicate in the firmware the current version and the path to the file with information Project.json
-- when updating, download binary and increase the version in the information file
-- the program will check the version and offer to update
+## Use of use
+- Indicate in the firmware the current version and the path to the file with information`project.json`
+- When updating download binaries and increase the version in the information file
+- The program will check the version and offer to update.
 
-> The library was conceived to update projects with GitHub, so the default settings for it.You can also be updated from your domain, but the host where the file is stored should be the same where the binary is stored, the library has only one tuning of the host and the port.
+Library accepts three paths to file`project.json`:
+- `https://...json`Fully your path to the file, the port will be determined automatically 80 or 443, unless manually specified in the constructor.
+- `user/repo`- file on GitHub at the root of the branch repository`main`
+- `user/repo/main/folder/file.json`- file on GitHub on the specified path in the specified branch
 
-`` `CPP
-Autoota (Consta Char* Cur_ver, Cost char* Path, const Char* host = "raw.githubusercontent.com", uint16_t port = 443);
+```cpp
+AutoOTA(const char* cur_ver, const char* url, uint16_t port = 0);
 
-// current version
-COST Char* Version ();
+// current
+const char* version();
 
-// Check updates.You can transmit lines to record information
-Bool Checkupdate (String* Version = Nullptr, String* Notes = Nullptr);
+// Check the updates. You can send lines to record information.
+bool checkUpdate(String* version = nullptr, String* notes = nullptr, String* bin = nullptr);
 
-// there is an update.Call after checking.Will drop in FALSE itself
-Bool Hasupdate ();
+// There's an update. Call after the check. He'll throw himself into falsehood.
+bool hasUpdate();
 
-// Update the firmware from Loop
-VOID update ();
+// loop-up
+void update();
 
-// update the firmware now and restart the chip
-Bool updatatenow ();
+// Update the firmware now and restart the chip
+bool updateNow();
 
-// ticker, call in LOOP.Will return True when trying to update
-Bool Tick ();
+// ticker, call the loop. Return True When Trying to Upgrade
+bool tick();
 
-// there is a mistake
-Bool Haserror ();
+// bug
+bool hasError();
 
-// Read the error
-Error Geterror ();
-`` `
+// mistake
+Error getError();
+```
 
 ### Examples
 Local object, update immediately
-`` `CPP
-Autoota OTA ("1.0", "Gyverlibs/Gyverhub-Example/Main/Project.json");
-ifa.checkupdate ()) {
-ota.updatatenow ();
+```cpp
+// AutoOTA ota("1.0", "GyverLibs/GyverHub-example") // If the file is at the root of the main branch repository
+
+AutoOTA ota("1.0", "GyverLibs/GyverHub-example/main/project.json");
+if (ota.checkUpdate()) {
+    ota.updateNow();
 }
-`` `
+```
 
-Loop update
-`` `CPP
-Autoota OTA ("1.0", "Gyverlibs/Gyverhub-Example/Main/Project.json");
+Update from loop
+```cpp
+// AutoOTA ota("1.0", "GyverLibs/GyverHub-example") // If the file is at the root of the main branch repository
 
-VOID setup () {
-ifa.checkupdate ()) {
-ota.update ();
+AutoOTA ota("1.0", "GyverLibs/GyverHub-example/main/project.json");
+
+void setup() {
+    if (ota.checkUpdate()) {
+        ota.update();
+    }
 }
+
+void loop() {
+    ota.tick();
 }
+```
 
-VOID loop () {
-OTA.Tick ();
+Receipt of update information
+```cpp
+String ver, notes;
+if (ota.checkUpdate(&ver, &notes)) {
+    Serial.println(ver);
+    Serial.println(notes);
 }
-`` `
+```
 
-Receiving info on update
-`` `CPP
-String Ver, Notes;
-ifa.checkupdate (& ver, & notes)) {
-Serial.println (Ver);
-Serial.println (notes);
-}
-`` `
+## Project.json file
+Instructions for the design of the repository and manifesto are available[here](https://github.com/AlexGyver/ota-projects).
 
-## File Project.json
-The file contains information about the project and paths to compiled firmware for different platforms in the format used in Gyverhub and Esphome:
+<a id="versions"></a>
 
-`` `json
-{
-"NAME": "The name of the project",
-"ABOUT": "Brief description of the project",
-"Version": "1.0",
-"Notes": "Comments on update",
-"Builds": [
-{
-"Chipfamily": "ESP8266",
-"Parts": [
-{
-"Path": "https://Rw.GITHUBUSERCONTENT.com/gyverlibs/gyverhub-example/main/bin/firmware.bin",
-"Offset": 0
-}
-]
-}
-]
-}
-`` `
+## Versions
+- v1.0
+- v1.2.0
 
-### Array Builds
-If the project can be launched on different ESP shuts, you can attach a separate binary for each and indicate the path to them.The library itself determines which platform is launched and selects the desired file.The full example with the entire ESP family can be seen [here] (https://github.com/gyverlibs/autoota/blob/main/project.json).
-
-### Parameter Chipfamily
-Supported platforms and parameter values ​​`chipfamily`:
-- `ESP8266`
-- `ESP32`
-- `ESP32-C3`
-- `ESP32-C6`
-- `ESP32-S2`
-- `ESP32-S3`
-- `ESP32-H2`
-
-### Path PAth
-The path should lead to a compiled firmware file.It can be placed both in the repository itself and in releases:
-
-#### in the repository
-`` `
-https://Rw.GITHUBUSERCONTENT.com/< Account>/< Project>/main/< Pre -Board of the Root Repository>
-`` `
-Examples:
-- Bin
-- Firmware.bin
-- ESP8266
-- Firmware.bin
-- ESP32
-- Firmware.bin
-`` `
-https://Rw.GITHUBUSERCONTENT.com/gyverlibs/gyverhub-example/main/bin/firmware.bin
-https://Rw.GITHUBUSERCONTENT.COM/gyverlibs/gyverhub-example/Main/BIN/ESP8266/FIRMWARE.BIN
-https://Rw.GITHUBUSERCONTENT.com/gyverlibs/gyverhub-example/Main/bin/esp32/firmware.bin
-`` `
-
-#### in releases
-`` `
-https://github.com/ <Account>/<proecial>/Releases/Latest/Download/<file>
-`` `
-Example:
-`` `
-https://github.com/gyverlibs/gyverhub-example/releases/latest/download/firmware.bin
-`` `
-
-<a id="versions"> </a>
-
-## versions
-- V1.0
-
-<a id="install"> </a>
+<a id="install"></a>
 ## Installation
-- The library can be found by the title ** Autoota ** and installed through the library manager in:
-- Arduino ide
-- Arduino ide v2
-- Platformio
-- [download the library] (https://github.com/gyverlibs/autoota/archive/refs/heads/main.zip) .Zip archive for manual installation:
-- unpack and put in * C: \ Program Files (X86) \ Arduino \ Libraries * (Windows X64)
-- unpack and put in * C: \ Program Files \ Arduino \ Libraries * (Windows X32)
-- unpack and put in *documents/arduino/libraries/ *
-- (Arduino id) Automatic installation from. Zip: * sketch/connect the library/add .Zip library ... * and specify downloaded archive
-- Read more detailed instructions for installing libraries [here] (https://alexgyver.ru/arduino-first/#%D0%A3%D1%81%D1%82%D0%B0%BD%D0%BE%BE%BE%BED0%B2%D0%BA%D0%B0_%D0%B1%D0%B8%D0%B1%D0%BB%D0%B8%D0%BE%D1%82%D0%B5%D0%BA)
+- The library can be found under the name **AutoOTA** and installed through the library manager in:
+    - Arduino IDE
+    - Arduino IDE v2
+    - PlatformIO
+- [Download the library](https://github.com/GyverLibs/AutoOTA/archive/refs/heads/main.zip).zip archive for manual installation:
+    - Unpack and put in *C:\Program Files (x86)\Arduino\libraries* (Windows x64)
+    - Unpack and put in *C:\Program Files\Arduino\libraries* (Windows x32)
+    - Unpack and put in *Documents/Arduino/libraries/ *
+    - (Arduino IDE) Automatic installation from .zip: *Sketch/Connect library/Add .ZIP library...* and specify downloaded archive
+- Read more detailed instructions for installing libraries[here](https://alexgyver.ru/arduino-first/#%D0%A3%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BA%D0%B0_%D0%B1%D0%B8%D0%B1%D0%BB%D0%B8%D0%BE%D1%82%D0%B5%D0%BA)
 ### Update
-- I recommend always updating the library: errors and bugs are corrected in the new versions, as well as optimization and new features are added
-- through the IDE library manager: find the library how to install and click "update"
-- Manually: ** remove the folder with the old version **, and then put a new one in its place.“Replacement” cannot be done: sometimes in new versions, files that remain when replacing are deleted and can lead to errors!
+- I recommend always updating the library: new versions fix errors and bugs, as well as optimize and add new features.
+- Through the library manager IDE: find the library as when installing and click "Update"
+- Manually: **Delete the folder with the old version** and then put the new one in its place. “Replacement” can not be done: sometimes new versions delete files that will remain when replaced and can lead to errors!
 
-<a id="feedback"> </a>
+<a id="feedback"></a>
 
-## bugs and feedback
-Create ** Issue ** when you find the bugs, and better immediately write to the mail [alex@alexgyver.ru] (mailto: alex@alexgyver.ru)
-The library is open for refinement and your ** pull Request ** 'ow!
+## Bugs and feedback
+If you find bugs, create **Issue**, or better write to the mail immediately.[alex@alexgyver.ru](mailto:alex@alexgyver.ru)  
+The library is open for revision and your **Pull Requests*!
 
-When reporting about bugs or incorrect work of the library, it is necessary to indicate:
-- The version of the library
-- What is MK used
+When reporting bugs or incorrect work of the library, it is necessary to specify:
+- Library version
+- What is used by the IC
 - SDK version (for ESP)
-- version of Arduino ide
-- whether the built -in examples work correctly, in which the functions and designs are used, leading to a bug in your code
-- what code has been loaded, what work was expected from it and how it works in reality
-- Ideally, attach the minimum code in which the bug is observed.Not a canvas of a thousand lines, but a minimum code
+- Arduino IDE version
+- Are embedded examples that use features and designs that cause bugs in your code working correctly?
+- What code was downloaded, what work was expected from it and how it works in reality
+- Ideally, attach the minimum code in which the bug is observed. Not a canvas of a thousand lines, but a minimum code.
