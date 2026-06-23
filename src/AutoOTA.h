@@ -52,6 +52,16 @@ class AutoOTA {
         }
     }
 
+    // set GitHub token for private repos
+    void setAuthToken(const char* token) {
+        _auth_token = token ? token : "";
+    }
+
+    // override default User-Agent if needed
+    void setUserAgent(const char* agent) {
+        _user_agent = agent ? agent : "AutoOTA";
+    }
+
     enum class Error : uint8_t {
         None,
         Connect,
@@ -163,6 +173,8 @@ class AutoOTA {
     Error _err = Error::None;
     bool _has_update = false;
     bool _ota_f = false;
+    String _auth_token;
+    String _user_agent = "AutoOTA";
 
     bool _extractPath(String& url, String& path, uint16_t* port) {
         if (!url.startsWith("http")) return false;
@@ -244,6 +256,12 @@ class AutoOTA {
                 req += path;
                 req += F(" HTTP/1.1\r\nHost: ");
                 req += host;
+                req += F("\r\nUser-Agent: ");
+                req += _user_agent;
+                if (_auth_token.length()) {
+                    req += F("\r\nAuthorization: token ");
+                    req += _auth_token;
+                }
                 req += F("\r\n\r\n");
                 client.print(req);
             }
